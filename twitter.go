@@ -105,14 +105,7 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r 
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
-		var twitterResp TwitterResponse
-		err = json.Unmarshal(body, &twitterResp)
-		if err != nil {
-		fmt.Fprintf(w, "<p> Error: %s </p>", err)
-		} else {
-			var 
-		}
-
+		fmt.Fprintf(w, "<p>%s</p>", body)
 	}
 	
 }	
@@ -127,7 +120,7 @@ func heatMapPage(w http.ResponseWriter, r *http.Request) {
 <title>Heatmaps</title>
 <style>
 html, body {
-height: 100%%;
+height: 100\%;
 margin: 0;
 padding: 0;
 }
@@ -139,7 +132,7 @@ zoom:1;
 float: left;
 }
 #floating-panel {
-width: 25%%;
+width: 25\%;
 top: 10px;
 float: left;
 background-color: #fff;
