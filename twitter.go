@@ -40,10 +40,12 @@ type Coordinates struct {
 func root(w http.ResponseWriter, r *http.Request){
 
 	fmt.Fprintf(w, "<html><title>TweetMap</title>")
+	testkeyword := "Earthquake"
 	access_token, success := checkForAccessToken()
 	if success == false {
 			access_token = authorise("L23T9SJUKk4zGrZf0lGjhXQZV", "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f", w, r)
 	}
+	requestKeyword(testkeyword, access_token, w, r)
 	fmt.Fprintf(w, "<p>%s</p>", access_token)
 	fmt.Fprintf(w, "</html>")
 }
@@ -69,7 +71,7 @@ func authorise(consumerkey string, consumersecretkey string, w http.ResponseWrit
 		if err != nil {
 			fmt.Fprintf(w, "<p> Error: %s </p>", err)
 		} else {
-			fmt.Fprintf(w, "<p> %s </p><p> %s </p>", resp.Status, body)
+			//fmt.Fprintf(w, "<p> %s </p><p> %s </p>", resp.Status, body)
 			var t Token
 			err = json.Unmarshal(body, &t)
 			if err != nil {
@@ -88,10 +90,20 @@ func drawMap(keyword string, resultslimit int, coords ...Coordinates) {
 
 }
 
-func requestKeyword(keyword string)  {
-
+func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r *http.Request)  {
+	ctx := appengine.NewContext(r)
+	hc := urlfetch.Client(ctx)
+	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/search/tweets.json?q=" + keyword, nil)
+	req.Header.Add("Authorization", "Bearer " + accesstoken)
+	resp, err := hc.Do(req)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Fprintf(w, "<p> Error: %s </p>", err)
+	} else {
+		fmt.Fprintf(w, "<p>%s</p>", body)
+	}
+	
 }	
-
 func checkForAccessToken() (string, bool) {
 	return "nil", false
 }
