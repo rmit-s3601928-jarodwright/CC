@@ -23,8 +23,8 @@ func init() {
 }
 
 type Tweet struct {
-	Geo string
-	Content    string
+	Content string `json:"text"`
+	Location string `json:"location"`
 }
 
 type Token struct {
@@ -32,11 +32,15 @@ type Token struct {
 	Access_token string
 }
 
-type Coordinates struct {
-	longitude float64
-	latitude float64
+type TwitterResponse struct {
+	SearchMetaData string `json:"search_metadata"`
+	Statuses string `json:"statuses"`
 }
 
+type Coordinates struct {
+	Longitude float64
+	Latitude float64
+}
 func root(w http.ResponseWriter, r *http.Request){
 
 	fmt.Fprintf(w, "<html><title>TweetMap</title>")
