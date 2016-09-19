@@ -105,7 +105,14 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r 
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
-		fmt.Fprintf(w, "<p>%s</p>", body)
+		var twitterResp TwitterResponse
+		err = json.Unmarshal(body, &twitterResp)
+		if err != nil {
+		fmt.Fprintf(w, "<p> Error: %s </p>", err)
+		} else {
+			var 
+		}
+
 	}
 	
 }	
