@@ -123,7 +123,7 @@ func heatMapPage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `<!DOCTYPE html>
 <html>
 <head>
-<meta charset=\"utf-8\">
+<meta charset="utf-8">
 <title>Heatmaps</title>
 <style>
 html, body {
@@ -153,25 +153,25 @@ line-height: 30px;
 </head>
 
 <body>
-<div id=\"floating-panel\">
+<div id="floating-panel">
 <span>Search tweets</span>
-<form method=\"POST\">
-<input type=\"text\"/>
-<input type=\"submit\" value=\"submit\"/>
+<form method="POST">
+<input type="text"/>
+<input type="submit" value="submit"/>
 </form>
-<button onclick=\"toggleHeatmap()\">Toggle Heatmap</button>
-<button onclick=\"changeGradient()\">Change gradient</button>
-<button onclick=\"changeRadius()\">Change radius</button>
-<button onclick=\"changeOpacity()\">Change opacity</button>
+<button onclick="toggleHeatmap()">Toggle Heatmap</button>
+<button onclick="changeGradient()">Change gradient</button>
+<button onclick="changeRadius()">Change radius</button>
+<button onclick="changeOpacity()">Change opacity</button>
 </div>
-<div id=\"map\"></div>
-<div id=\"keyWord\"></div>
+<div id="map"></div>
+<div id="keyWord"></div>
 <script>
 
 var map, heatmap;
 
 function initMap() {
-map = new google.maps.Map(document.getElementById(\"map\"), {
+map = new google.maps.Map(document.getElementById("map"), {
 zoom: 2,
 center: {lat: 0, lng: 0},
 mapTypeId: 'satellite'
@@ -722,7 +722,7 @@ new google.maps.LatLng(37.751266, -122.403355)
 }
 </script>
 <script async defer
-src=\"https://maps.googleapis.com/maps/api/js?key=AIzaSyCA2IXesNAu2eVxW2epTko-QTDxi5HqJkY&libraries=visualization&callback=initMap\">
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA2IXesNAu2eVxW2epTko-QTDxi5HqJkY&libraries=visualization&callback=initMap">
 </script>
 </body>
 </html>
