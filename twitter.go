@@ -27,14 +27,33 @@ type Tweet struct {
 	Location string `json:"location"`
 }
 
+type TweetCollection struct {
+	Data map[string]Tweet
+}
+
 type Token struct {
 	Tokentype string
 	Access_token string
 }
 
 type TwitterResponse struct {
-	SearchMetaData string `json:"search_metadata"`
-	Statuses string `json:"statuses"`
+	Statuses []struct {
+			Text string `json:"text"`
+			Geo struct {
+				Coordinates []float64 `json:"coordinates"`
+				} `json:"geo"`
+			Place struct {
+					Url string `json:"url"`
+					Bounds struct {
+						Coordinates [][][]float64 `json:"coordinates"`
+					}
+				} `json:"place"`
+			User struct {
+				Name string `json:"name"`
+				Location string `json:"location"`
+			} `json:"user"`
+
+		} `json:"statuses"`
 }
 
 type Coordinates struct {
@@ -45,11 +64,12 @@ func root(w http.ResponseWriter, r *http.Request){
 
 	fmt.Fprintf(w, "<html><title>TweetMap</title>")
 	testkeyword := "Earthquake"
+	tweetarray := new(TweetCollection)
 	access_token, success := checkForAccessToken()
 	if success == false {
 			access_token = authorise("L23T9SJUKk4zGrZf0lGjhXQZV", "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f", w, r)
 	}
-	requestKeyword(testkeyword, access_token, w, r)
+	requestKeyword(testkeyword, access_token, w, r, tweetarray)
 	fmt.Fprintf(w, "<p>%s</p>", access_token)
 	fmt.Fprintf(w, "</html>")
 	heatMapPage(w, r)
@@ -95,7 +115,7 @@ func drawMap(keyword string, resultslimit int, coords ...Coordinates) {
 
 }
 
-func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r *http.Request)  {
+func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r *http.Request, tweetarray *TweetCollection)  {
 	ctx := appengine.NewContext(r)
 	hc := urlfetch.Client(ctx)
 	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/search/tweets.json?q=" + keyword, nil)
@@ -105,18 +125,22 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r 
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
+		fmt.Fprintf(w, "<p> : %s </p>", body)
+		//var teststring = `{ "statuses":[{"location": "6", "name": "test1", "meme": "none"},{"location": null, "name": "test"}],"meta": "2"}`
 		var twitterResp TwitterResponse
-		err = json.Unmarshal(body, &twitterResp)
+		err := json.Unmarshal(body, &twitterResp)
+		//fmt.Fprintf(w, "<p><strong>%s</strong></p>", body)
+		
 		if err != nil {
-		fmt.Fprintf(w, "<p> Error: %s </p>", err)
+		fmt.Fprintf(w, "<p> Error1: %s </p>", err)
 		} else {
-			var 
+			fmt.Fprintf(w, "%+v", twitterResp)
 		}
 
 	}
 	
 }	
-func checkForAccessToken() (string, bool) {
+func checkForAccessToken() (string, bool) { /* TODO */
 	return "nil", false
 }
 func heatMapPage(w http.ResponseWriter, r *http.Request) {
