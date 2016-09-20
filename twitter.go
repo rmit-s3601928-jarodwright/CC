@@ -125,6 +125,7 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r 
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
+<<<<<<< HEAD
 		fmt.Fprintf(w, "<p> : %s </p>", body)
 		//var teststring = `{ "statuses":[{"location": "6", "name": "test1", "meme": "none"},{"location": null, "name": "test"}],"meta": "2"}`
 		var twitterResp TwitterResponse
@@ -137,6 +138,9 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r 
 			fmt.Fprintf(w, "%+v", twitterResp)
 		}
 
+=======
+		fmt.Fprintf(w, "<p>%s</p>", body)
+>>>>>>> origin/master
 	}
 	
 }	
