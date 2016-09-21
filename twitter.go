@@ -43,10 +43,10 @@ type TwitterResponse struct {
 				Coordinates []float64 `json:"coordinates"`
 				} `json:"geo"`
 			Place struct {
-					Url string `json:"url"`
+					Id string `json:"id"`
 					Bounds struct {
 						Coordinates [][][]float64 `json:"coordinates"`
-					}
+					} `json:"bounding_box"`
 				} `json:"place"`
 			User struct {
 				Name string `json:"name"`
@@ -118,29 +118,26 @@ func drawMap(keyword string, resultslimit int, coords ...Coordinates) {
 func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r *http.Request, tweetarray *TweetCollection)  {
 	ctx := appengine.NewContext(r)
 	hc := urlfetch.Client(ctx)
-	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/search/tweets.json?q=" + keyword, nil)
+	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/search/tweets.json?q="  + keyword + "&result_type=popular&count=99", nil)
 	req.Header.Add("Authorization", "Bearer " + accesstoken)
 	resp, err := hc.Do(req)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
-<<<<<<< HEAD
-		fmt.Fprintf(w, "<p> : %s </p>", body)
+		fmt.Fprintf(w, "<p> %s </p></br>", body )
 		//var teststring = `{ "statuses":[{"location": "6", "name": "test1", "meme": "none"},{"location": null, "name": "test"}],"meta": "2"}`
 		var twitterResp TwitterResponse
 		err := json.Unmarshal(body, &twitterResp)
 		//fmt.Fprintf(w, "<p><strong>%s</strong></p>", body)
 		
 		if err != nil {
-		fmt.Fprintf(w, "<p> Error1: %s </p>", err)
+		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 		} else {
-			fmt.Fprintf(w, "%+v", twitterResp)
+			fmt.Fprintf(w, "<p>%+v</p>", twitterResp)
+			fmt.Fprintf(w, "<p>%d</p>", len(twitterResp.Statuses))
 		}
-
-=======
-		fmt.Fprintf(w, "<p>%s</p>", body)
->>>>>>> origin/master
+		//fmt.Fprintf(w, "<p>%s</p>", body)
 	}
 	
 }	
