@@ -13,6 +13,8 @@ import (
 	//"oauth"
 	b64 "encoding/base64"
 	"appengine"
+    "appengine/datastore"
+    //"appengine/user"
 	"appengine/urlfetch"
 	"encoding/json"
 )
@@ -63,7 +65,8 @@ type Coordinates struct {
 func root(w http.ResponseWriter, r *http.Request){
 
 	fmt.Fprintf(w, "<html><title>TweetMap</title>")
-	testkeyword := "Earthquake"
+	testkeyword := r.FormValue("keyword")
+	fmt.Fprintf(w, testkeyword)
 	tweetarray := new(TweetCollection)
 	access_token, success := checkForAccessToken()
 	if success == false {
@@ -73,6 +76,10 @@ func root(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintf(w, "<p>%s</p>", access_token)
 	fmt.Fprintf(w, "</html>")
 	heatMapPage(w, r)
+}
+
+func tweetKey(c appengine.Context) *datastore.Key {
+        return datastore.NewKey(c, "tweet", "default_tweet", 0, nil)
 }
 
 func authorise(consumerkey string, consumersecretkey string, w http.ResponseWriter, r *http.Request) string {
@@ -180,8 +187,8 @@ line-height: 30px;
 <body>
 <div id="floating-panel">
 <span>Search tweets</span>
-<form method="POST">
-<input type="text"/>
+<form action="/root" method="get">
+<input type="text" name="keyword">
 <input type="submit" value="submit"/>
 </form>
 <button onclick="toggleHeatmap()">Toggle Heatmap</button>
