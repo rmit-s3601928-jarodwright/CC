@@ -6,80 +6,69 @@ import (
 	"io/ioutil"
 	//"log"
 	//"html/template"
-    "net/http"
-    "net/url"
-    //"time"
-    "strings"
+	"net/http"
+	"net/url"
+	//"time"
+	"strings"
 	//"oauth"
-	b64 "encoding/base64"
 	"appengine"
-    "appengine/datastore"
-    //"appengine/user"
 	"appengine/urlfetch"
+	b64 "encoding/base64"
 	"encoding/json"
 )
 
 func init() {
-    http.HandleFunc("/", root)
-    //http.HandleFunc("/authorise", authorise)
+	http.HandleFunc("/", root)
+	//http.HandleFunc("/authorise", authorise)
 }
 
 type Tweet struct {
-	Content string `json:"text"`
+	Content  string `json:"text"`
 	Location string `json:"location"`
 }
 
-type TweetCollection struct {
-	Data map[string]Tweet
-}
-
 type Token struct {
-	Tokentype string
+	Tokentype    string
 	Access_token string
 }
 
 type TwitterResponse struct {
 	Statuses []struct {
-			Text string `json:"text"`
-			Geo struct {
-				Coordinates []float64 `json:"coordinates"`
-				} `json:"geo"`
-			Place struct {
-					Id string `json:"id"`
-					Bounds struct {
-						Coordinates [][][]float64 `json:"coordinates"`
-					} `json:"bounding_box"`
-				} `json:"place"`
-			User struct {
-				Name string `json:"name"`
-				Location string `json:"location"`
-			} `json:"user"`
-
-		} `json:"statuses"`
+		Text string `json:"text"`
+		Geo  struct {
+			Coordinates []float64 `json:"coordinates"`
+		} `json:"geo"`
+		Place struct {
+			Id     string `json:"id"`
+			Bounds struct {
+				Coordinates [][][]float64 `json:"coordinates"`
+			} `json:"bounding_box"`
+		} `json:"place"`
+		User struct {
+			Name     string `json:"name"`
+			Location string `json:"location"`
+		} `json:"user"`
+	} `json:"statuses"`
 }
 
 type Coordinates struct {
 	Longitude float64
-	Latitude float64
+	Latitude  float64
 }
-func root(w http.ResponseWriter, r *http.Request){
+
+func root(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "<html><title>TweetMap</title>")
-	testkeyword := r.FormValue("keyword")
-	fmt.Fprintf(w, testkeyword)
-	tweetarray := new(TweetCollection)
+	testkeyword := "Earthquake"
+	tweetArray := new(TwitterResponse)
 	access_token, success := checkForAccessToken()
 	if success == false {
-			access_token = authorise("L23T9SJUKk4zGrZf0lGjhXQZV", "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f", w, r)
+		access_token = authorise("L23T9SJUKk4zGrZf0lGjhXQZV", "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f", w, r)
 	}
-	requestKeyword(testkeyword, access_token, w, r, tweetarray)
+	requestKeyword(testkeyword, access_token, w, r, tweetArray)
 	fmt.Fprintf(w, "<p>%s</p>", access_token)
 	fmt.Fprintf(w, "</html>")
 	heatMapPage(w, r)
-}
-
-func tweetKey(c appengine.Context) *datastore.Key {
-        return datastore.NewKey(c, "tweet", "default_tweet", 0, nil)
 }
 
 func authorise(consumerkey string, consumersecretkey string, w http.ResponseWriter, r *http.Request) string {
@@ -92,8 +81,8 @@ func authorise(consumerkey string, consumersecretkey string, w http.ResponseWrit
 	hc := urlfetch.Client(ctx)
 	form := url.Values{}
 	form.Add("grant_type", "client_credentials")
-	req, err := http.NewRequest("POST", "https://api.twitter.com/oauth2/token",strings.NewReader(form.Encode()) )
-	req.Header.Add("Authorization", "Basic " + encoded)
+	req, err := http.NewRequest("POST", "https://api.twitter.com/oauth2/token", strings.NewReader(form.Encode()))
+	req.Header.Add("Authorization", "Basic "+encoded)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
 	resp, err := hc.Do(req)
 	if err != nil {
@@ -113,44 +102,74 @@ func authorise(consumerkey string, consumersecretkey string, w http.ResponseWrit
 			}
 		}
 
-	} 
-	
-	return  accesstoken
+	}
+
+	return accesstoken
 }
 
 func drawMap(keyword string, resultslimit int, coords ...Coordinates) {
 
 }
 
-func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter,r *http.Request, tweetarray *TweetCollection)  {
+func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter, r *http.Request, tweetArray *TwitterResponse) /* *CoordinateCollection */ {
 	ctx := appengine.NewContext(r)
 	hc := urlfetch.Client(ctx)
-	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/search/tweets.json?q="  + keyword + "&result_type=popular&count=99", nil)
-	req.Header.Add("Authorization", "Bearer " + accesstoken)
+	req, err := http.NewRequest("GET", "https://api.twitter.com/1.1/search/tweets.json?q="+keyword+"&result_type=recent&count=100", nil)
+	req.Header.Add("Authorization", "Bearer "+accesstoken)
 	resp, err := hc.Do(req)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
-		fmt.Fprintf(w, "<p> %s </p></br>", body )
+		//fmt.Fprintf(w, "<p> %s </p></br>", body)
 		//var teststring = `{ "statuses":[{"location": "6", "name": "test1", "meme": "none"},{"location": null, "name": "test"}],"meta": "2"}`
 		var twitterResp TwitterResponse
 		err := json.Unmarshal(body, &twitterResp)
 		//fmt.Fprintf(w, "<p><strong>%s</strong></p>", body)
-		
+
 		if err != nil {
-		fmt.Fprintf(w, "<p> Error: %s </p>", err)
+			fmt.Fprintf(w, "<p> Error: %s </p>", err)
 		} else {
-			fmt.Fprintf(w, "<p>%+v</p>", twitterResp)
-			fmt.Fprintf(w, "<p>%d</p>", len(twitterResp.Statuses))
+			//fmt.Fprintf(w, "<p>%+v</p>", twitterResp)
+			//fmt.Fprintf(w, "<p>%d</p>", len(twitterResp.Statuses))
+			//return
+			compileLocationResults(&twitterResp, w, keyword)
 		}
 		//fmt.Fprintf(w, "<p>%s</p>", body)
 	}
-	
-}	
+
+}
+
+func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter, keyword string) /**CoordinateCollection*/ {
+	i := 0
+	coordSlice := make([]Coordinates, 1)
+	for _, v := range twitterResp.Statuses {
+		if (len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0 {
+
+		} else {
+			if len(v.Geo.Coordinates) >= 1 {
+				bufferCoords := Coordinates{
+					Latitude:  v.Geo.Coordinates[0],
+					Longitude: v.Geo.Coordinates[1],
+				}
+				coordSlice = append(coordSlice, bufferCoords)
+				i = i + 1
+			} else if len(v.Place.Bounds.Coordinates) >= 1 {
+					bufferCoords := Coordinates{
+						Latitude:  	v.Place.Bounds.Coordinates[0][0][0],
+						Longitude: 	v.Place.Bounds.Coordinates[0][0][1],
+					}
+					coordSlice = append(coordSlice, bufferCoords)
+			}
+		}
+	}
+	fmt.Fprintf(w, "<p>%+v</p>", coordSlice)
+}
+
 func checkForAccessToken() (string, bool) { /* TODO */
 	return "nil", false
 }
+
 func heatMapPage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `<!DOCTYPE html>
 <html>
@@ -187,8 +206,8 @@ line-height: 30px;
 <body>
 <div id="floating-panel">
 <span>Search tweets</span>
-<form action="/root" method="get">
-<input type="text" name="keyword">
+<form method="POST">
+<input type="text"/>
 <input type="submit" value="submit"/>
 </form>
 <button onclick="toggleHeatmap()">Toggle Heatmap</button>
