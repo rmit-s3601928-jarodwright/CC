@@ -122,6 +122,19 @@ func authorise(consumerkey string, consumersecretkey string, w http.ResponseWrit
 	}
 
 	return accesstoken
+
+}
+
+func getCoords(coords []Coordinates) string {
+	if coords == nil {
+		return ""
+	}
+	s := ""
+	for _, v := range coords {
+		s = s + ("new google.maps.LatLng(" + strconv.FormatFloat(v.Latitude, 'f', -1, 64) + ", " + strconv.FormatFloat(v.Longitude, 'f', -1, 64) + "),\n")
+	}
+	return s
+
 }
 
 func getCoords(coords []Coordinates) string {
