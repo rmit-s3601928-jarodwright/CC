@@ -1,0 +1,7 @@
+indexes:
+- kind: TweetStorage
+  ancestor: yes
+  properties:
+  - name: Content
+    direction: desc
+  - name: Coordinates
