@@ -19,9 +19,10 @@ import (
 	"strconv"
 )
 
-var consumerkey string = "L23T9SJUKk4zGrZf0lGjhXQZV" // replace with your consumer key from twitter.com
+	var consumerkey string = "L23T9SJUKk4zGrZf0lGjhXQZV" // replace with your consumer key from twitter.com
 	var consumersecretkey string = "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f" // replace with your consumer secret key from twitter.com
 	var googlemapapikey string = "AIzaSyCA2IXesNAu2eVxW2epTko-QTDxi5HqJkY" // replace with your api key from google maps api
+	var mapquestapikey string = "AbuyAhixGfSilbEtGF10ot8ZVQeC24KQ" // replace witth your api key
 
 func init() {
 	
@@ -59,6 +60,24 @@ type TwitterResponse struct {
 	} `json:"statuses"`
 }
 
+type geocodingResults struct {
+	Results []struct {
+		Locations []Location `json:"locations"`
+	} `json:"results"`
+}
+
+type Location struct {
+	Street      string `json:"street"`
+	City        string `json:"adminArea5"`
+	State       string `json:"adminArea3"`
+	PostalCode  string `json:"postalCode"`
+	County      string `json:"adminArea4"`
+	CountryCode string `json:"adminArea1"`
+	LatLng      GeoPoint `json:"latLng"`
+	Type        string `json:"type"`
+	DragPoint   bool   `json:"dragPoint"`
+}
+
 type Coordinates struct {
 	Longitude float64
 	Latitude  float64
@@ -72,6 +91,10 @@ type GeoPoint struct {
 type TweetData struct {
 	Content string
 	Gp GeoPoint
+}
+
+func decoder(resp *http.Response) *json.Decoder {
+	return json.NewDecoder(resp.Body)
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
@@ -190,7 +213,40 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 	coordSlice := make([]Coordinates, 1)
 	for _, v := range twitterResp.Statuses {
 		if (len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0 {
+			// Query Provider 
+				ctx := appengine.NewContext(r)
+				hc := urlfetch.Client(ctx)
+				req, err := http.NewRequest("GET", "https://open.mapquestapi.com/geocoding/v1/address?inFormat=kvp&outFormat=json&location=" + url.QueryEscape(v.User.Location) + "&key=" + mapquestapikey, nil)
+				resp, err := hc.Do(req)
 
+				if err != nil {
+					fmt.Fprintf(w, "<p>%s</p>", err)
+				} else {
+
+					defer resp.Body.Close()
+
+					// Decode our JSON results
+					var result geocodingResults
+					err = decoder(resp).Decode(&result)
+
+					if err != nil {
+						fmt.Fprintf(w, "<p>%s</p>", err)
+					} else {
+
+					
+						if len(result.Results[0].Locations) > 0 {
+							bufferCoords := Coordinates{
+								Latitude: result.Results[0].Locations[0].LatLng.Lat,
+								Longitude: result.Results[0].Locations[0].LatLng.Lng,
+							}
+							if (bufferCoords.Latitude != 0 && bufferCoords.Longitude != 0) {			
+								storeTweet(v.Id, v.Text, bufferCoords, w, r)
+								coordSlice = append(coordSlice, bufferCoords)
+								i = i + 1
+							}
+						}
+					}
+				}
 		} else {
 			if len(v.Geo.Coordinates) >= 1 {
 				bufferCoords := Coordinates{
