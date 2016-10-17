@@ -63,7 +63,7 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter, r
 		if err != nil {
 			fmt.Fprintf(w, "<p> Error: %s </p>", err)
 		} else {
-			fmt.Fprintf(w, "<p>%+v</p>", twitterResp)
+			fmt.Fprintf(w, `<script>console.log('%+v');</script>`, twitterResp)
 			//fmt.Fprintf(w, "<p>%d</p>", len(twitterResp.Statuses))
 			//return
 			return compileLocationResults(&twitterResp, w, r, keyword)
