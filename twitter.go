@@ -19,7 +19,12 @@ import (
 	"strconv"
 )
 
+var consumerkey string = "L23T9SJUKk4zGrZf0lGjhXQZV" // replace with your consumer key from twitter.com
+	var consumersecretkey string = "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f" // replace with your consumer secret key from twitter.com
+	var googlemapapikey string = "AIzaSyCA2IXesNAu2eVxW2epTko-QTDxi5HqJkY" // replace with your api key from google maps api
+
 func init() {
+	
 	http.HandleFunc("/", root)
 	http.HandleFunc("/submit", submit)
 }
@@ -86,7 +91,7 @@ func submit(w http.ResponseWriter, r *http.Request) {
 	tweetArray := new(TwitterResponse)
 	access_token, success := checkForAccessToken()
 	if success == false {
-		access_token = authorise("L23T9SJUKk4zGrZf0lGjhXQZV", "i7mCRyxSMUc1uS8c4EGGcZWM47gDTDOxNwE6PvURTCQIQlhi5f", w, r)
+		access_token = authorise(consumerkey, consumersecretkey, w, r)
 	}
 	//requestKeyword(testkeyword, access_token, w, r, tweetArray)
 	//fmt.Fprintf(w, "<p>%s</p>", access_token)
@@ -389,7 +394,7 @@ return [
 }
 </script>
 <script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCA2IXesNAu2eVxW2epTko-QTDxi5HqJkY&libraries=visualization&callback=initMap">
+src="https://maps.googleapis.com/maps/api/js?key=` + googlemapapikey + `&libraries=visualization&callback=initMap">
 </script>
 </body>
 `)
