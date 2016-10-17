@@ -78,7 +78,7 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter, r
 func getStoredData(w http.ResponseWriter, r *http.Request, keyword string) []Coordinates {
 	c := appengine.NewContext(r)
 	coordSlice := make([]Coordinates, 1)
-	query := datastore.NewQuery("TweetData").Ancestor(tweetStorageKey(c)).Limit(200)
+	query := datastore.NewQuery("TweetStorage").Ancestor(tweetStorageKey(c)).Limit(2000)
 	tweets := make([]TweetData, 1)
 	if _, err := query.GetAll(c, &tweets); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

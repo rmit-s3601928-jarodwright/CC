@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"	
 	"appengine/urlfetch"
+	"fmt"
 )
 
 type geocodingResults struct {
@@ -102,7 +103,7 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 		}
 	}
 	coordSlice = append(coordSlice, getStoredData(w, r, keyword)...)
-	
+	fmt.Fprintf(w, `<script>document.title = "TweetMap (" + %d + " unique locations)"</script>`, i-1)
 	//fmt.Fprintf(w, "%+v", coordSlice)
 	return coordSlice
 }
