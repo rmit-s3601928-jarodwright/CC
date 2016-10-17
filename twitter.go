@@ -212,7 +212,7 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 	i := 0
 	coordSlice := make([]Coordinates, 1)
 	for _, v := range twitterResp.Statuses {
-		if (len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0 {
+		if ((len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0) && i < 40) {
 			// Query Provider 
 				ctx := appengine.NewContext(r)
 				hc := urlfetch.Client(ctx)
