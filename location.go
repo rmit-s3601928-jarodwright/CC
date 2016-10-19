@@ -37,6 +37,8 @@ type GeoPoint struct {
 	Lng float64	
 	Lat  float64
 }
+
+// meaty function for attempting to get as many locations from a TwitterResponse as possible. It uses both coordinate data and string-based location data to create a list of coordinates.
 func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter, r *http.Request, keyword string) []Coordinates {
 	i := 0
 	coordSlice := make([]Coordinates, 1)
@@ -44,7 +46,6 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 	i = len(coordSlice)
 	for _, v := range twitterResp.Statuses {
 		if (((len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0) && i < 10) {
-			// Query Provider 
 				bufferCoords := geocodeSearch(w, r, v.User.Location)
 				if (bufferCoords.Latitude != 0 && bufferCoords.Longitude != 0) {			
 								storeTweet(v.Id, v.Text, bufferCoords, w, r)
@@ -109,7 +110,7 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 	//fmt.Fprintf(w, "%+v", coordSlice)
 	return coordSlice
 }
-
+// Use mapquest's api to determine a set of coordinates from a string-based location. Has a rate limit of 15000 requests per month so we use it as little as possible.
 func geocodeSearch(w http.ResponseWriter, r *http.Request, location string) Coordinates {
 				ctx := appengine.NewContext(r)
 				hc := urlfetch.Client(ctx)
@@ -125,7 +126,6 @@ func geocodeSearch(w http.ResponseWriter, r *http.Request, location string) Coor
 
 					defer resp.Body.Close()
 
-					// Decode our JSON results
 					var result geocodingResults
 					err = decoder(resp).Decode(&result)
 

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 )
-
+// Turn a table of coordinates into a lot of js script strings compatible with google maps
 func getCoords(coords []Coordinates) string {
 	if coords == nil {
 		return ""
@@ -21,7 +21,7 @@ func getCoords(coords []Coordinates) string {
 
 }
 
-
+// our html for this application
 func heatMapPage(w http.ResponseWriter, r *http.Request, coords []Coordinates) {
 	fmt.Fprintf(w, `<head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

@@ -29,28 +29,13 @@ type Token struct {
 	Access_token string
 }
 
-func getConsumerKey() string {
-	return consumerkey
-}
-
-func getConsumerSecret() string {
-	return consumersecretkey
-}
-
-func getGoogleApiKey() string {
-	return googlemapapikey
-}
-func getMapQuestApiKey() string {
-	return mapquestapikey
-}
-
 func init() {
 	
 	http.HandleFunc("/", root)
 	http.HandleFunc("/submit", submit)
 }
 
-
+// Create home page with no data yet
 func root(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "<html><title>TweetMap</title>")
@@ -58,21 +43,18 @@ func root(w http.ResponseWriter, r *http.Request) {
 	heatMapPage(w, r, nil)
 	fmt.Fprintf(w, "</html>")
 }
-
+// Create page with data
 func submit(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "<!DOCTYPE html><html><title>TweetMap</title>")
 	keyword := url.QueryEscape(r.FormValue("keyword"))
 	tweetArray := new(TwitterResponse)
-	access_token, success := checkForAccessToken()
-	if success == false {
-		access_token = authorise(consumerkey, consumersecretkey, w, r)
-	}
+	access_token = authorise(consumerkey, consumersecretkey, w, r)
 	heatMapPage(w, r, requestKeyword(keyword, access_token, w, r, tweetArray))
 	fmt.Fprintf(w, "</html>")
 }
 
-
+// Authorise with OAuth for Twitter's API
 func authorise(consumerkey string, consumersecretkey string, w http.ResponseWriter, r *http.Request) string {
 	accesstoken := "nil"
 
@@ -94,7 +76,6 @@ func authorise(consumerkey string, consumersecretkey string, w http.ResponseWrit
 		if err != nil {
 			fmt.Fprintf(w, "<p> Error: %s </p>", err)
 		} else {
-			//fmt.Fprintf(w, "<p> %s </p><p> %s </p>", resp.Status, body)
 			var t Token
 			err = json.Unmarshal(body, &t)
 			if err != nil {
@@ -108,8 +89,4 @@ func authorise(consumerkey string, consumersecretkey string, w http.ResponseWrit
 
 	return accesstoken
 
-}
-
-func checkForAccessToken() (string, bool) { /* TODO */
-	return "nil", false
 }

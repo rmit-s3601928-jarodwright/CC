@@ -39,11 +39,11 @@ type TweetData struct {
 }
 
 
-
+// get a new key for searching the datastore
 func tweetStorageKey(c appengine.Context) *datastore.Key {
 	return datastore.NewKey(c, "TweetStorage", "default_tweetstorage", 0, nil)
 }
-
+// Request 100 Tweets from twitter based on keyword(s). Has a rate limit of 480 Requests every 15 minutes.
 func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter, r *http.Request, tweetArray *TwitterResponse) []Coordinates {
 	ctx := appengine.NewContext(r)
 	hc := urlfetch.Client(ctx)
@@ -54,27 +54,22 @@ func requestKeyword(keyword string, accesstoken string, w http.ResponseWriter, r
 	if err != nil {
 		fmt.Fprintf(w, "<p> Error: %s </p>", err)
 	} else {
-		//fmt.Fprintf(w, "<p> %s </p></br>", body)
-		//var teststring = `{ "statuses":[{"location": "6", "name": "test1", "meme": "none"},{"location": null, "name": "test"}],"meta": "2"}`
 		var twitterResp TwitterResponse
 		err := json.Unmarshal(body, &twitterResp)
-		//fmt.Fprintf(w, "<p><strong>%s</strong></p>", body)
 
 		if err != nil {
 			fmt.Fprintf(w, "<p> Error: %s </p>", err)
 		} else {
 			fmt.Fprintf(w, `<script>console.log('%+v');</script>`, twitterResp)
-			//fmt.Fprintf(w, "<p>%d</p>", len(twitterResp.Statuses))
-			//return
+
 			return compileLocationResults(&twitterResp, w, r, keyword)
 		}
-		//fmt.Fprintf(w, "<p>%s</p>", body)
 	}
 	return nil
 }
 
 
-
+// Request past tweets from the datastore via a query. Converts them into the struct used by the compileLocationResults function.
 func getStoredData(w http.ResponseWriter, r *http.Request, keyword string) []Coordinates {
 	c := appengine.NewContext(r)
 	coordSlice := make([]Coordinates, 1)
@@ -95,7 +90,7 @@ func getStoredData(w http.ResponseWriter, r *http.Request, keyword string) []Coo
 	}
 	return coordSlice
 }
-
+// Store a tweet in the datastore
 func storeTweet(tweetid string, content string, coords Coordinates, w http.ResponseWriter,  r *http.Request) {
 	c := appengine.NewContext(r)
 	newGP := GeoPoint{
