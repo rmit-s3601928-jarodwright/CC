@@ -40,8 +40,10 @@ type GeoPoint struct {
 func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter, r *http.Request, keyword string) []Coordinates {
 	i := 0
 	coordSlice := make([]Coordinates, 1)
+	coordSlice = append(coordSlice, getStoredData(w, r, keyword)...)
+	i = len(coordSlice)
 	for _, v := range twitterResp.Statuses {
-		if (((len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0) && i < 30) {
+		if (((len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0) && i < 10) {
 			// Query Provider 
 				bufferCoords := geocodeSearch(w, r, v.User.Location)
 				if (bufferCoords.Latitude != 0 && bufferCoords.Longitude != 0) {			
@@ -102,7 +104,7 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 			}
 		}
 	}
-	coordSlice = append(coordSlice, getStoredData(w, r, keyword)...)
+	
 	fmt.Fprintf(w, `<script>document.title = "TweetMap (" + %d + " unique locations)"</script>`, i-1)
 	//fmt.Fprintf(w, "%+v", coordSlice)
 	return coordSlice
