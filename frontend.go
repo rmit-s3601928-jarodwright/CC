@@ -136,25 +136,24 @@ html, body {
 #search input {
 	height:calc(12.5vh);
 	width:calc(100vw - 100vh);
-	font-size:72px;
+	font-size:12vh;
 	text-align: center;
 }
 .floating-panel {
 	width:calc(100vw - 100vh);
 	height:calc(12.5vh);
-	top: 10px;
 	float: left;
 	background-color: #9BC8FB;
 	text-align: center;
 	font-family: 'Roboto','sans-serif';
 }
 button {
-	font-size:72px;
+	font-size:12vh;
 	font-family: 'Roboto','sans-serif';
 	border:none;
 }
-.floating-panel:hover {
-	opacity:0.8;
+button:hover {
+	background-color:#C7E0F9;
 }
 </style>
 </head>
@@ -176,7 +175,12 @@ button {
 					id: i,
 					class: 'floating-panel',
 					text: sessionStorage.getItem(i),
-				}).click(function(){window.location = "\submit?keyword=" + $(this).text();addKeyword($(this).text());}).appendTo('#inputs');
+				}).click(
+					function()
+					{
+						window.location = "\submit?keyword=" + $(this).text();
+						addKeyword($(this).text());
+					}).appendTo('#inputs');
 			}
 			else
 			{
@@ -211,39 +215,6 @@ button {
 		});
 		heatmap.set('radius', heatmap.get('radius') ? null : 75)
 	}
-
-	function toggleHeatmap() {
-		heatmap.setMap(heatmap.getMap() ? null : map);
-	}
-
-	function changeGradient() {
-		var gradient = [
-		'rgba(0, 255, 255, 0)',
-		'rgba(0, 255, 255, 1)',
-		'rgba(0, 191, 255, 1)',
-		'rgba(0, 127, 255, 1)',
-		'rgba(0, 63, 255, 1)',
-		'rgba(0, 0, 255, 1)',
-		'rgba(0, 0, 223, 1)',
-		'rgba(0, 0, 191, 1)',
-		'rgba(0, 0, 159, 1)',
-		'rgba(0, 0, 127, 1)',
-		'rgba(63, 0, 91, 1)',
-		'rgba(127, 0, 63, 1)',
-		'rgba(191, 0, 31, 1)',
-		'rgba(255, 0, 0, 1)'
-		]
-		heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
-	}
-
-	function changeRadius() {
-		heatmap.set('radius', heatmap.get('radius') ? null : 20);
-	}
-
-	function changeOpacity() {
-		heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
-	}
-
 	function getPoints() {
 		return [
 		`+getCoords(coords)+`];
