@@ -45,7 +45,7 @@ func compileLocationResults(twitterResp *TwitterResponse, w http.ResponseWriter,
 	coordSlice = append(coordSlice, getStoredData(w, r, keyword)...)
 	i = len(coordSlice)
 	for _, v := range twitterResp.Statuses {
-		if (((len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0) && i < 10) {
+		if (((len(v.Geo.Coordinates) == 0) || len(v.Place.Bounds.Coordinates) == 0) && i < 40) {
 				bufferCoords := geocodeSearch(w, r, v.User.Location)
 				if (bufferCoords.Latitude != 0 && bufferCoords.Longitude != 0) {			
 								storeTweet(v.Id, v.Text, bufferCoords, w, r)

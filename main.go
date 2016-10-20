@@ -49,7 +49,7 @@ func submit(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<!DOCTYPE html><html><title>TweetMap</title>")
 	keyword := url.QueryEscape(r.FormValue("keyword"))
 	tweetArray := new(TwitterResponse)
-	access_token = authorise(consumerkey, consumersecretkey, w, r)
+	access_token := authorise(consumerkey, consumersecretkey, w, r)
 	heatMapPage(w, r, requestKeyword(keyword, access_token, w, r, tweetArray))
 	fmt.Fprintf(w, "</html>")
 }

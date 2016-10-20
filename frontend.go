@@ -213,7 +213,7 @@ button:hover {
 			data: getPoints(),
 			map: map
 		});
-		heatmap.set('radius', heatmap.get('radius') ? null : 75)
+		heatmap.set('radius', heatmap.get('radius') ? null : 50)
 	}
 	function getPoints() {
 		return [
