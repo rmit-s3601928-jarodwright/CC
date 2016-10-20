@@ -162,7 +162,7 @@ button:hover {
 	<div id="inputs">
 		<div id="search">
 			<form action="/submit" onsubmit="addKeywordSearch();" "method="POST">
-				<input name="keyword" id="keyword" type="text" autocomplete="off"/>
+				<input name="keyword" id="keyword" type="text" placeholder="Just type here!" autocomplete="off"/>
 			</form>
 		</div>
 		<script>
